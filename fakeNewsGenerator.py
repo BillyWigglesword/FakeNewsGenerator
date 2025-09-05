@@ -17,7 +17,7 @@ actions = [
     'eats worms',
     'declares war on spiders',
     'orders a bowl of cereal',
-    'celebrates their Emmmy award'
+    'celebrates their Emmy award'
 ]
 
 places = [
