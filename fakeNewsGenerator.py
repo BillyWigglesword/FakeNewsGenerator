@@ -43,7 +43,7 @@ def generate_unique_headline():
         subject = random.choice(subjects)
         action = random.choice(actions)
         place_or_thing = random.choice(places)
-        headline = f'BREAKING NEWS : {subject} {action} {place_or_thing}'
+        headline = f'BREAKING NEWS : {subject} {action} {places}'
         if headline not in seen_headlines:
             return headline
 
