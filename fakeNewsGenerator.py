@@ -37,13 +37,13 @@ seen_headlines = set()
 
 def generate_unique_headline():
     # Generate a headline not seen before; return None if exhausted."""
-    # If we’re close to exhaustion, sampling might take longer; we can fall back to enumeration.
+    # If we're close to exhaustion, sampling might take longer; we can fall back to enumeration.
     # For simplicity, try a fixed number of random attempts first.
     for _ in range(50):
         subject = random.choice(subjects)
         action = random.choice(actions)
-        place_or_thing = random.choice(places)
-        headline = f'BREAKING NEWS : {subject} {action} {places}'
+        place = random.choice(places)
+        headline = f'BREAKING NEWS : {subject} {action} {place}'
         if headline not in seen_headlines:
             return headline
 
@@ -71,8 +71,15 @@ while True:
     seen_headlines.add(headline)
     print('\n' + headline)
 
-    user_input = input('\nDo you want another headline (yes/no)? ').strip().lower()
-    if user_input == 'no':
-        break
+    while True:  # Inner loop for input validation
+        user_input = input('\nDo you want another headline (yes/no)? ').strip()
+        
+        if user_input in ['YES', 'Yes', 'yes', 'y', 'Y']:
+            break  # Exit inner loop to generate another headline
+        elif user_input in ['no', 'NO', 'No', 'n', 'N']:
+            print("Goodbye!")
+            exit()  # Exit the program
+        else:
+            print("Error: Please answer with yes or no.")
+            # Continue the inner loop to ask again
 
-print("\nThank you and goodbye!")
