@@ -76,6 +76,7 @@ total_horoscopes = len(signs) * len(predictions)
 
 seen_horoscopes = set()
 seen_headlines = set()
+seen_math_problems = set()
 
 def generate_unique_horoscope_for_sign(user_sign):
     # Only generate horoscopes for the user's sign
@@ -93,9 +94,69 @@ def generate_unique_horoscope_for_sign(user_sign):
 
     return None, None, None
 
+def generate_unique_math_problem():
+    '''
+    Generate a simple arithmetic problem not seen before.
+
+    Supports +, -, *, / (with integer result). Returns (problem_str, op, a, b)
+    or (None, None, None, None) when exhausted.
+    '''
+    ops = ['+', '-', '*', '/']
+    # Try random attempts first
+    for _ in range(200):
+        op = random.choice(ops)
+        if op == '+':
+            a = random.randint(0, 50)
+            b = random.randint(0, 50)
+        elif op == '-':
+            a = random.randint(0, 50)
+            b = random.randint(0, a)  # ensure non-negative result
+        elif op == '*':
+            a = random.randint(0, 12)
+            b = random.randint(0, 12)
+        else:  # division, ensure integer result and non-zero divisor
+            b = random.randint(1, 12)
+            q = random.randint(0, 12)
+            a = b * q
+
+        problem = f"{a} {op} {b}"
+        if problem not in seen_math_problems:
+            return problem, op, a, b
+
+    # Fallback: deterministic enumeration
+    for op in ops:
+        if op == '+':
+            for a in range(0, 51):
+                for b in range(0, 51):
+                    problem = f"{a} + {b}"
+                    if problem not in seen_math_problems:
+                        return problem, '+', a, b
+        if op == '-':
+            for a in range(0, 51):
+                for b in range(0, a+1):
+                    problem = f"{a} - {b}"
+                    if problem not in seen_math_problems:
+                        return problem, '-', a, b
+        if op == '*':
+            for a in range(0, 13):
+                for b in range(0, 13):
+                    problem = f"{a} * {b}"
+                    if problem not in seen_math_problems:
+                        return problem, '*', a, b
+        if op == '/':
+            for b in range(1, 13):
+                for q in range(0, 13):
+                    a = b * q
+                    problem = f"{a} / {b}"
+                    if problem not in seen_math_problems:
+                        return problem, '/', a, b
+
+    return None, None, None, None
+
 def generate_unique_headline():
-    # Generate a headline not seen before; return None if exhausted.
-    # For simplicity, try a fixed number of random attempts first.
+    '''Generate a headline not seen before; return None if exhausted.
+       For simplicity, try a fixed number of random attempts first.
+    '''
     for _ in range(50):
         subject = random.choice(subjects)
         action = random.choice(actions)
@@ -128,8 +189,9 @@ while True:
     print("\nWhat would you like to do?")
     print("1. Generate a fake news headline")
     print("2. Get a daily horoscope")
-    print("3. Exit")
-    choice = input("Enter your choice (1/2/3): ").strip()
+    print("3. Solve a math problem")
+    print("4. Exit")
+    choice = input("Enter your choice (1/2/3/4): ").strip()
 
     if choice == '1':
         if len(seen_headlines) >= total_headlines:
@@ -177,8 +239,54 @@ while True:
         print(f'{prediction}')
         print(f'{"-" * 60}')
     elif choice == '3':
+        # Math problem flow
+        result = generate_unique_math_problem()
+        if result[0] is None:
+            print("\nNo more unique math problems available. You've seen them all!")
+            continue
+        problem, op, a, b = result
+        seen_math_problems.add(problem)
+        print(f'\n{"-" * 60}')
+        print(f'Solve: {problem}')
+        print("Type 'skip' to skip this problem.")
+        while True:
+            answer = input("Your answer: ").strip()
+            if answer.lower() == 'skip':
+                print("Problem skipped.")
+                break
+            try:
+                # Compute correct answer
+                if op == '+':
+                    correct = a + b
+                elif op == '-':
+                    correct = a - b
+                elif op == '*':
+                    correct = a * b
+                else:  # '/'
+                    correct = a / b
+
+                user_val = float(answer) if ('.' in answer or op == '/') else int(answer)
+            except ValueError:
+                print("Invalid input. Enter a number or 'skip'.")
+                continue
+
+            # Compare answers
+            if op == '/':
+                if abs(user_val - correct) < 1e-6:
+                    print("Correct!")
+                else:
+                    print(f"Incorrect. The correct answer is {correct}.")
+                break
+            else:
+                if user_val == correct:
+                    print("Correct!")
+                else:
+                    print(f"Incorrect. The correct answer is {correct}.")
+                break
+        print(f'{"-" * 60}')
+    elif choice == '4':
         print("Goodbye!")
         break
     else:
-        print("Error: Please enter 1, 2, or 3.")
+        print("Error: Please enter 1, 2, 3, or 4.")
 
