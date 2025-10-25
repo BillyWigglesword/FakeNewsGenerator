@@ -1,2 +1,2 @@
 # FakeNewsGenerator
-A simple python program that generates random fake news headlines
+A simple python program that generates random fake news headlines or daily hororscope
